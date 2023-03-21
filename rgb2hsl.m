@@ -1,4 +1,7 @@
 function hsl = rgb2hsl(rgb)
+  if max(max(rgb)) > 1
+    rgb = rgb / 255;
+  endif
   [M, Midx] = max(rgb, [], 2);
   [m, midx] = min(rgb, [], 2);
   C = M - m;

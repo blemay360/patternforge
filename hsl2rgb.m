@@ -7,26 +7,28 @@ function rgb = hsl2rgb(hsl)
   H_prime = H / 60;
   X = C .* (1 - abs(mod(H_prime, 2) - 1));
 
-  rgb = zeros(size(hsl))
+  rgb = zeros(size(hsl));
 
   for i = 1:rows(hsl)
     if H_prime(i) < 1
-      rgb(i, :) = [C, X, 0];
+      rgb(i, :) = [C(i), X(i), 0];
     elseif H_prime(i) < 2
-      rgb(i, :) = [X, C, 0];
+      rgb(i, :) = [X(i), C(i), 0];
     elseif H_prime(i) < 3
-      rgb(i, :) = [0, C, X];
+      rgb(i, :) = [0, C(i), X(i)];
     elseif H_prime(i) < 4
-      rgb(i, :) = [0, X, C];
+      rgb(i, :) = [0, X(i), C(i)];
     elseif H_prime(i) < 5
-      rgb(i, :) = [X, 0, C];
+      rgb(i, :) = [X(i), 0, C(i)];
     elseif H_prime(i) < 6
-      rgb(i, :) = [C, 0, X];
+      rgb(i, :) = [C(i), 0, X(i)];
     endif
   endfor
 
   m = L - 0.5 .* C;
 
   rgb = rgb + m;
+
+  rgb = rgb * 255;
 
 endfunction
