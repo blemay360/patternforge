@@ -5,9 +5,7 @@
 ##colors(:, 10) = 6 * ones(3, 1)
 
 clear all; close all;
-for i = 1:10
+for i = 1:1
   pattern_maker
   close all;
-  km.reinits
-  plot(km.error_list)
 endfor

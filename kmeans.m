@@ -1,4 +1,8 @@
 classdef kmeans
+  % TODO
+  % Don't add pic to km, just store size of pic
+  % Comments
+  % Add update gui function
   properties
     distance;
     k;
@@ -9,56 +13,67 @@ classdef kmeans
     error;
     max_loops = 100000;
     idx;
+    pic;
     converged = false;
     loops = 0;
-    reinits = 1;
+    reinits = 0;
     error_list = [];
   endproperties
 
   methods
     function km = kmeans(pic, k)
-      km.data = kmeans.flatten(pic);
+      km.pic = pic;
       km.k = k;
-      km = km.init_centroids();
-      km.distance = zeros(k, length(km.data(1, :)));
-      while km.converged == false
+    endfunction
+
+    function self = run(self)
+      self.data = kmeans.flatten(self.pic);
+      self = self.init_centroids();
+      prev = self.centroids;
+      orig = self.centroids;
+      self.distance = zeros(self.k, length(self.data(1, :)));
+      while self.converged == false
         % ---------- Calculate distances
-        km.distance = kmeans.calculate_distance(km.data, km.centroids);
+        self.distance = kmeans.calculate_distance(self.data, self.centroids);
         % ---------- Sort points
-        [km.error, km.idx] = kmeans.sort_points(km.distance);
+        [self.error, self.idx] = kmeans.sort_points(self.distance);
         % ---------- Recalculate centroids
-        for i = 1:columns(km.centroids)
-          cluster = km.data(:, km.idx == i);
+        for i = 1:columns(self.centroids)
+          cluster = self.data(:, self.idx == i);
           if !isempty(cluster)
-            km.centroids(:, i) = mean(cluster, 2);
+            self.centroids(:, i) = mean(cluster, 2);
           endif
         endfor
         % ---------- Check if centroids have converged
-        if all(all(abs(km.centroids - km.prev) < 0.1))
-          if any(any(abs(km.centroids - km.orig) < 0.1))
-            km = km.init_centroids();
-            km.reinits += 1;
+        if all(all(abs(self.centroids - prev) < 0.1))
+          if any(any(abs(self.centroids - orig) < 0.1))
+            self = self.init_centroids();
+            prev = self.centroids;
+            orig = self.centroids;
+            self.reinits += 1;
           else
-            km.converged = true;
-            km.distance = kmeans.calculate_distance(km.data, km.centroids);
-            [km.error, km.idx] = kmeans.sort_points(km.distance);
-            km.error = sum(km.error);
-            km.idx = kmeans.unflatten(km.idx, pic);
+            self.converged = true;
+            self.distance = kmeans.calculate_distance(self.data, self.centroids);
+            [self.error, self.idx] = kmeans.sort_points(self.distance);
+            self.error = sum(self.error);
+            self.idx = kmeans.unflatten(self.idx, self.pic);
           endif
         endif
 
         % ---------- Chicken way out
-        if km.loops > km.max_loops
+        if self.loops > self.max_loops
           break
         endif
-        if km.reinits > km.max_loops
+        if self.reinits > self.max_loops
           break
         endif
 
         % ---------- Update variables for next loop
-        km.prev = km.centroids;
-        km.loops += 1;
-        km.error_list = [km.error_list, sum(km.error)];
+        prev = self.centroids;
+        self.loops += 1;
+        if !self.converged
+          self.error_list = [self.error_list, sum(self.error)];
+        endif
       endwhile
     endfunction
 
@@ -90,9 +105,6 @@ classdef kmeans
         % Make the new centroid the randomly chosen index
         self.centroids = [self.centroids, self.data(:, ind)];
       endfor
-      % Make copies of the centroids
-      self.prev = self.centroids;
-      self.orig = self.centroids;
     endfunction
 
   endmethods

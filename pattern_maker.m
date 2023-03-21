@@ -1,11 +1,13 @@
 % -------------------- Set variables
-filename = "Beaker.jpg";
+filename = "images/Beaker.jpg";
 ##filename = "gitlab.png";
 k = 8; %8
 scale = 0.05; %0.05
 attempts = 1;
 make_figures = true;
 aida_count = 16;
+
+addpath gui
 
 % -------------------- Load image
 original = imread(filename);
@@ -24,8 +26,9 @@ attempts = attempts - 1;
 
 for i = 0:attempts
 ##  update_status_bar(i / attempts)
-  tic;
   km = kmeans(pic, k);
+  tic;
+  km = km.run();
   toc
 
 
